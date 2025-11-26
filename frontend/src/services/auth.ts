@@ -1,6 +1,6 @@
 import axios from "axios";
 import UserDraft from "../models/UserDraft";
-import Login from "../models/login";
+import Login from "../models/LoginModel";
 
 class AuthService {
 

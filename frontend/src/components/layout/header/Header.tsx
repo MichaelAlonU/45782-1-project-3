@@ -9,7 +9,7 @@ import logo from '../../../assets/vacations-logo.jpg'
 export default function Header() {
     const name = useUsername();
     const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
-    const isAdmin = useSelector((state: RootState) => state.auth.isAdmin);
+    const isAdmin = useSelector((state: RootState) => state.auth.user?.isAdmin);
     const dispatch = useDispatch();
 
     return (
@@ -22,8 +22,8 @@ export default function Header() {
             <nav>
                 {!isLoggedIn && (
                     <>
-                        <NavLink to="/auth">Sign up</NavLink> |
-                        <NavLink to="/login">Login</NavLink>
+                        <NavLink to="/signup">Sign up</NavLink> | 
+                        <NavLink to="/login"> Login</NavLink>
                     </>
                 )}
 

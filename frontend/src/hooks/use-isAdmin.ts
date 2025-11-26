@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { RootState } from "../redux/store";
 
 export default function useAdminGuard() {
-  const isAdmin = useSelector((state: RootState) => state.auth.isAdmin);
+  const isAdmin = useSelector((state: RootState) => state.auth.user.isAdmin);
   const navigate = useNavigate();
 
   useEffect(() => {

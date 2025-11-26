@@ -1,57 +1,81 @@
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import './NewVacation.css';
-// import TeamsService from '../../../services/teams';
-// import MeetingsService from '../../../services/meetings';
-// import { Team } from '../../../models/Teams';
-// import { MeetDraft } from '../../../models/MeetDraft';
+import { useForm } from 'react-hook-form';
+import { joiResolver } from '@hookform/resolvers/joi';
+import { createNewVacationValidator } from './../../../../../backend/src/controllers/vacations/validator';
+import VacationDraft from '../../../models/VacationDraft';
+import VacationService from '../../../services/auth-aware/VacationService';
+import { useService } from '../../../hooks/use-service';
+import { useNavigate } from 'react-router-dom';
+import SpinnerButton from '../../common/spinner-button/SpinnerButton';
+
 export default function NewVacation() {
-    const [teams, setTeams] = useState<Team[]>([]);
-    const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<MeetDraft>();
+    const vacationService = useService(VacationService);
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        TeamsService.getAll().then(t => setTeams(t)).catch(console.error);
-    }, []);
+    const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<VacationDraft>({
+        resolver: joiResolver(createNewVacationValidator),
+        defaultValues: {
+            destination: '',
+            description: '',
+            startTime: '',
+            endTime: '',
+            price: 0,
+            image: undefined
+        }
+    });
 
-    async function onSubmit(data: MeetDraft) {
+    async function onSubmit(data: VacationDraft) {
+
+        data.image = (data.image as unknown as FileList)[0];
         try {
-            await MeetingsService.create(data);
-            alert('Meeting created');
+            await vacationService.newVacation(data);
+            alert('Vacation created');
             reset();
+            navigate('/Admin');
         } catch (err) {
             console.error(err);
-            alert('Failed to create meeting');
+            alert('Failed to create vacation');
         }
     }
 
     return (
+
         <div className='NewVacation'>
-            <h3>New Vacation</h3>
+            <h3> Add Vacation</h3>
             <form onSubmit={handleSubmit(onSubmit)} className='new-vacation-form'>
-                <label>Team</label>
-                {/* <select {...register('teamId', { required: 'Please choose a team' })}>
-                    <option value=''>-- choose team --</option>
-                    {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                </select>
-                <div className='formError'>{errors.teamId?.message}</div> */}
+
+                <label>Destination</label>
+                <textarea {...register('destination')} />
+                <div className='formError'>{errors.destination?.message}</div>
+
+                <label>Description</label>
+                <textarea {...register('description')} />
+                <div className='formError'>  {errors.description?.message} </div>
 
                 <label>Start time</label>
-                <input type='datetime-local' {...register('startTime', { required: 'Start time is required' })} />
+                <input type='datetime-local' {...register('startTime')} />
                 <div className='formError'>{errors.startTime?.message}</div>
 
                 <label>End time</label>
-                <input type='datetime-local' {...register('endTime', { required: 'End time is required' })} />
+                <input type='datetime-local' {...register('endTime')} />
                 <div className='formError'>{errors.endTime?.message}</div>
 
-                <label>Room</label>
-                <input {...register('meetRoom', { required: 'Room is required', minLength: { value: 2, message: 'Room must be at least 2 characters' } })} />
-                <div className='formError'>{errors.meetRoom?.message}</div>
+                <label>Price</label>
+                <input type='number' {...register('price', { valueAsNumber: true })} />
+                <div className='formError'>{errors.price?.message}</div>
 
-                <label>Description</label>
-                <textarea {...register('description', { required: 'Description is required', minLength: { value: 5, message: 'Description must be at least 5 characters' } })} />
-                <div className='formError'>{errors.description?.message}</div>
+                <label> Image </label>
+                <input type="file" accept='image/*' {...register('image')} />
+                <div className='formError'>{errors.image?.message}</div>
 
-                <button type='submit' disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Create Meeting'}</button>
+                <SpinnerButton
+                    buttonText='Add Vacation'
+                    loadingText='adding vacation...'
+                    isSubmitting={isSubmitting}
+                />
+
+                <button type='button' onClick={() => reset()}> Reset </button>
+
             </form>
         </div>
     );

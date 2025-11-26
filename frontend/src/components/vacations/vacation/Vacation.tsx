@@ -7,6 +7,7 @@ import { init } from '../../../redux/vacationSlice';
 import VacationService from '../../../services/auth-aware/VacationService';
 import { RootState } from '../../../redux/store';
 import VacationCard from '../VacationCard/VacationCard';
+import { useService } from '../../../hooks/use-service';
 
 export default function Vacations() {
 

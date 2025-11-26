@@ -2,9 +2,8 @@ export default interface VacationDraft {
 
     destination: string
     description: string
-    startTime: Date;
-    endTime: Date;
+    startTime: string;
+    endTime: string;
     price: number;
-    imageUrl: string
-    image: File
+    image: File | null;
 }

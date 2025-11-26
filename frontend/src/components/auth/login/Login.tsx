@@ -1,21 +1,20 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useForm } from 'react-hook-form';
-import Login from "../../../models/Login";
 import SpinnerButton from "../../common/spinner-button/SpinnerButton";
 import { login } from "../../../redux/auth-slice";
 import authService from "../../../services/auth";
 import { useNavigate } from "react-router-dom";
-
+import LoginModel from "../../../models/LoginModel";
 
 export default function Login() {
 
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { register, handleSubmit, formState: { errors } } = useForm<Login>();
+    const { register, handleSubmit, formState: { errors } } = useForm<LoginModel>();
 
-    async function onSubmit(data: Login) {
+    async function onSubmit(data: LoginModel) {
         try {
 
             setIsSubmitting(true);
