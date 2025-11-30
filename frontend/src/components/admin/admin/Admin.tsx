@@ -13,8 +13,11 @@ export default function Admin() {
             <h2> Admin control panel </h2>
             <NavLink to="/add-vacation">
                 Add a new vacation
-            </NavLink> 
-            
+            </NavLink>
+            <NavLink to="/vacations-reports">
+                See vacation reports
+            </NavLink>
+
 
 
         </div>

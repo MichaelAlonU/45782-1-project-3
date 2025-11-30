@@ -34,7 +34,8 @@ export const vacationSlice = createSlice({
         },
         newVacation: (state, action: PayloadAction<Vacation>) => {
             // state.posts = [action.payload, ...state.posts]
-            state.newVacation = action.payload;
+            // state.newVacation = action.payload;
+            state.vacations = [action.payload, ...state.vacations];
         },
         updateVacation: (state, action: PayloadAction<Vacation>) => {
             const idx = state.vacations.findIndex(p => p.id === action.payload.id);
