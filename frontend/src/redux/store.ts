@@ -1,12 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import followersSlice from "./followers-slice";
 import vacationSlice from "./vacationSlice";
 import authSlice from "./auth-slice";
 
 const store = configureStore({
     reducer: {
         auth: authSlice,
-        followers: followersSlice,
         vacations: vacationSlice,
     }
 });

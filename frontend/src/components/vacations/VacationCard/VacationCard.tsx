@@ -1,9 +1,10 @@
 import './VacationCard.css';
 import { useAppDispatcher } from '../../../redux/hooks';
 import { useService } from '../../../hooks/use-service';
-import FollowersService from '../../../services/auth-aware/FollowersService';
-import { follow, unfollow } from '../../../redux/vacationSlice';
+import { follow, unfollow, deleteVacation, updateVacation } from '../../../redux/vacationSlice';
 import { useNavigate } from 'react-router';
+import VacationService from '../../../services/auth-aware/VacationService';
+import {jwtDecode} from 'jwt-decode';
 
 interface Props {
     vacation: any;
@@ -12,52 +13,71 @@ interface Props {
     isLikeAllowed: boolean;
 }
 
-export default function VacationCard({ vacation, isEditAllowed, isDeleteAllowed, isLikeAllowed }: Props) {
+interface JwtPayload { id: string }
 
+export default function VacationCard({ vacation, isEditAllowed, isDeleteAllowed, isLikeAllowed }: Props) {
     const dispatcher = useAppDispatcher();
-    const followersService = useService(FollowersService)
-    const navigate = useNavigate()
-    async function toggleLike() {
+    const vacationService = useService(VacationService);
+    const navigate = useNavigate();
+
+    const token = localStorage.getItem('jwt');
+    const currentUserId = token ? jwtDecode<JwtPayload>(token).id : null;
+    async function handleDelete(id: string) {
+        if (!confirm("Are you sure you want to delete this vacation?")) return;
         try {
-            if (vacation.isFollowed) {
-                await followersService.unfollow(vacation.id);
-                dispatcher(unfollow(vacation.id));
-            } else {
-                await followersService.follow(vacation.id);
-                dispatcher(follow(vacation.id));
-            }
-        } catch (e) {
-            alert(e);
+            await vacationService.remove(id);
+            dispatcher(deleteVacation(id));
+            alert("Vacation deleted successfully");
+        } catch (err) {
+            alert(err);
         }
     }
+
+    async function toggleLike() {
+        if (!currentUserId) return;
+        try {
+            let updatedVacation;
+            if (vacation.followers?.find((f: any) => f.id === currentUserId)) {
+                updatedVacation = await vacationService.unfollow(vacation.id);
+                dispatcher(unfollow({ id: vacation.id, userId: currentUserId }));
+            } else {
+                updatedVacation = await vacationService.follow(vacation.id);
+                dispatcher(follow({ id: vacation.id, userId: currentUserId }));
+            }
+            dispatcher(updateVacation(updatedVacation));
+        } catch (err) {
+            alert(err);
+        }
+    }
+
+    const isLikedByCurrentUser = vacation.followers?.some((f: any) => f.id === currentUserId);
 
     return (
         <div className="VacationCard">
             <h3>{vacation.destination}</h3>
             <img src={`${import.meta.env.VITE_S3_URL}${vacation.imageUrl}`} alt={vacation.destination} />
-
             <p>{vacation.description}</p>
             <p>{vacation.price}$</p>
 
             {isLikeAllowed && (
-                <button
-                    className={vacation.isFollowed ? "liked" : ""}
-                    onClick={toggleLike}
-                >
-                    {vacation.isFollowed ? "❤️" : "🤍"}
-                </button>
+                <div>
+                    <p className="followers-count">👥 {vacation.followers?.length || 0} followers</p>
+                    <button
+                        className={isLikedByCurrentUser ? "liked" : ""}
+                        style={{ color: isLikedByCurrentUser ? 'red' : 'black' }}
+                        onClick={toggleLike}
+                    >
+                        {isLikedByCurrentUser ? "❤️" : "🤍"}
+                    </button>
+                </div>
             )}
 
             {isEditAllowed && (
-                <button className="edit-btn" onClick={ () => navigate(`/vacations/edit/${vacation.id}`)}>
-                    Edit
-                </button>
+                <button className="edit-btn" onClick={() => navigate(`/vacations/edit/${vacation.id}`)}>Edit</button>
             )}
 
             {isDeleteAllowed && (
-                <button className="delete-btn">
-                    Delete
-                </button>
+                <button className="delete-btn" onClick={() => handleDelete(vacation.id)}>Delete</button>
             )}
         </div>
     );

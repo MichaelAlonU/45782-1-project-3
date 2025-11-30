@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Follow from "../../models/Follow";
+import Vacation from "../../models/Vacation";
+import User from "../../models/User";
 // import socket from "../../io/io";
 // import SocketMessages from "socket-enums-shaharsolllllll";
 
@@ -14,20 +16,18 @@ export async function follow(req: Request<{ vacationId: string }>, res: Response
                 vacationId
             }
         })
-
         if (existing) throw new Error('follow already exists')
 
         await Follow.create({ userId, vacationId });
-        res.json({ success: true });
+        const vacation = await Vacation.findByPk(vacationId, {
+            include: [{
+                model: User,
+                attributes: ["id"],
+                through: { attributes: [] }
+            }]
+        });
 
-        // const follow = await Follow.create({
-        //     followerId: req.userId,
-        //     followeeId: req.params.id
-        // })
-        // res.json(follow)
-
-        // const followee = (await User.findByPk(req.params.id)).get({ plain: true })
-        // const follower = (await User.findByPk(req.userId)).get({ plain: true })
+        res.json(vacation);
 
         // socket.emit(SocketMessages.NewFollow, {
         //     from: req.get('x-client-id'),
@@ -50,13 +50,20 @@ export async function unfollow(req: Request<{ vacationId: string }>, res: Respon
         const vacationId = req.params.vacationId;
 
         const follow = await Follow.findOne({ where: { userId, vacationId } });
-
         if (!follow) throw new Error('the user is not following this vacation')
 
         await follow.destroy()
-        res.json({
-            success: true
-        })
+
+        const vacation = await Vacation.findByPk(vacationId, {
+            include: [{
+                model: User,
+                attributes: ["id"],
+                through: { attributes: [] }
+            }]
+        });
+
+        res.json(vacation);
+
     } catch (e) {
         console.log(e)
         if (e.message === 'the user is not following this vacation') return next({

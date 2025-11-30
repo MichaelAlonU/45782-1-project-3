@@ -5,6 +5,5 @@ export default interface Vacation extends VacationDraft {
     imageUrl: string,
     createdAt: string,
     isFollowed: boolean,
-    // followersCount: number,
-
+    followers?: { id: string }[]  // array of the user's IDs who follow this vacation
 };

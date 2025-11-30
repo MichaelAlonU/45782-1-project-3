@@ -59,6 +59,15 @@
     margin: 0.5rem 1rem 1rem;
 }
 
+.VacationCard .followers-count {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
 .VacationCard button {
     background: var(--primary-color);
     color: white;

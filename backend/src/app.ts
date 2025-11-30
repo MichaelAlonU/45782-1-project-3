@@ -7,6 +7,7 @@ import sequelize from './db/sequelize';
 import Role from './models/Role';
 import cors from 'cors'
 import vacationsRouter from './routers/vacations'
+import followersRouter from './routers/follows'
 import authRouter from './routers/auth'
 import authenticate from './middlewares/authenticate';
 import fileUpload from 'express-fileupload';
@@ -26,6 +27,7 @@ app.use(json())
 app.use('/auth', authRouter)
 app.use(authenticate)
 app.use('/vacations', vacationsRouter)
+app.use('/followers', followersRouter)
 
 // not found
 app.use(notFound)

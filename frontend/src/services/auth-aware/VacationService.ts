@@ -6,6 +6,7 @@ export default class VacationService extends AuthAware {
 
     async getAll(): Promise<Vacation[]> {
         const response = await this.axiosInstance.get<Vacation[]>(`/vacations`);
+                
         return response.data;
     }
 
@@ -45,4 +46,15 @@ export default class VacationService extends AuthAware {
         });
         return response.data;
     }
+
+    async unfollow(vacationId: string): Promise<Vacation> {
+        const { data } = await this.axiosInstance.delete<Vacation>(`/followers/unfollow/${vacationId}`);
+        return data;
+    }
+
+    async follow(vacationId: string): Promise<Vacation> {
+        const { data } = await this.axiosInstance.post<Vacation>(`/followers/follow/${vacationId}`);
+        return data;
+    }
+
 }
