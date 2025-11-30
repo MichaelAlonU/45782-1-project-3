@@ -4,7 +4,7 @@ import { useService } from '../../../hooks/use-service';
 import { follow, unfollow, deleteVacation, updateVacation } from '../../../redux/vacationSlice';
 import { useNavigate } from 'react-router';
 import VacationService from '../../../services/auth-aware/VacationService';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 interface Props {
     vacation: any;
@@ -58,6 +58,8 @@ export default function VacationCard({ vacation, isEditAllowed, isDeleteAllowed,
             <img src={`${import.meta.env.VITE_S3_URL}${vacation.imageUrl}`} alt={vacation.destination} />
             <p>{vacation.description}</p>
             <p>{vacation.price}$</p>
+            <p>Start: {new Date(vacation.startTime).toLocaleDateString()}</p>
+            <p>End: {new Date(vacation.endTime).toLocaleDateString()}</p>
 
             {isLikeAllowed && (
                 <div>

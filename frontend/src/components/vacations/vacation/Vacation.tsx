@@ -15,38 +15,79 @@ export default function Vacations() {
     const vacationService = useService(VacationService);
     const vacations = useAppSelector((state: RootState) => state.vacations.vacations);
     const isAdmin = useAppSelector((state: RootState) => state.auth.user.isAdmin);
-    const dispatch = useAppDispatcher();
+    const dispatcher = useAppDispatcher();
 
+    const token = localStorage.getItem('jwt');
+    const currentUserId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
+
+    // Pagination
+    const ITEMS_PER_PAGE = 10;
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+
+    // Filters
+    const [followedOnly, setFollowedOnly] = useState(false);
+    const [upcomingOnly, setUpcomingOnly] = useState(false);
+    const [activeOnly, setActiveOnly] = useState(false);
 
     useEffect(() => {
         (async () => {
             try {
                 if (vacations.length === 0) {
                     const vacationFromServer = await vacationService.getAll();
-                    dispatch(init(vacationFromServer));
+                    dispatcher(init(vacationFromServer));
                 }
             } catch (e) {
                 alert(e);
             }
         })();
-    }, [dispatch, vacations.length, vacationService]);
+    }, [dispatcher, vacations.length, vacationService]);
 
-    // מיון לפי startTime עולה
-    const sortedVacations = [...vacations].sort(
-        (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-    );
+    // Apply sorting by start date ascending
+    let sortedVacations = [...vacations].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
-    // pagination slice
-    const startIdx = (currentPage - 1) * itemsPerPage;
-    const endIdx = startIdx + itemsPerPage;
-    const paginatedVacations = sortedVacations.slice(startIdx, endIdx);
-    const totalPages = Math.ceil(sortedVacations.length / itemsPerPage);
+    // Apply filters
+    const now = new Date();
+    let filteredVacations = sortedVacations.filter(vac => {
+        const isFollowedByCurrentUser = vac.followers?.some((f: any) => f.id === currentUserId);
+
+        if (followedOnly && !isFollowedByCurrentUser) return false;
+        if (upcomingOnly && new Date(vac.startTime) <= now) return false;
+        if (activeOnly && (new Date(vac.startTime) > now || new Date(vac.endTime) < now)) return false;
+        return true;
+    });
+
+    // Pagination
+    const totalPages = Math.ceil(filteredVacations.length / ITEMS_PER_PAGE);
+    const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedVacations = filteredVacations.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
     return (
         <div className='Vacations'>
-            {vacations.length > 0 ? (
+            <div className="filters" style={{ marginBottom: '1rem' }}>
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={followedOnly}
+                        onChange={e => { setFollowedOnly(e.target.checked); setCurrentPage(1); }}
+                    /> Only Followed
+                </label>
+                <label style={{ marginLeft: '1rem' }}>
+                    <input
+                        type="checkbox"
+                        checked={upcomingOnly}
+                        onChange={e => { setUpcomingOnly(e.target.checked); setCurrentPage(1); }}
+                    /> Upcoming Only
+                </label>
+                <label style={{ marginLeft: '1rem' }}>
+                    <input
+                        type="checkbox"
+                        checked={activeOnly}
+                        onChange={e => { setActiveOnly(e.target.checked); setCurrentPage(1); }}
+                    /> Active Now
+                </label>
+            </div>
+
+            {paginatedVacations.length > 0 ? (
                 <>
                     {paginatedVacations.map(vac => (
                         <VacationCard
@@ -58,18 +99,18 @@ export default function Vacations() {
                         />
                     ))}
 
-                    {/* Pagination Controls */}
-                    <div className="pagination">
+                    {/* Pagination controls */}
+                    <div style={{ marginTop: '1rem' }}>
                         <button
-                            onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
                             disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                         >
                             Prev
                         </button>
-                        <span>{currentPage} / {totalPages}</span>
+                        <span style={{ margin: '0 1rem' }}>{currentPage} / {totalPages}</span>
                         <button
-                            onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
                             disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                         >
                             Next
                         </button>
@@ -77,7 +118,7 @@ export default function Vacations() {
                 </>
             ) : (
                 <>
-                    <p>Loading vacations...</p>
+                    <p>No vacations found.</p>
                     <Spinner />
                 </>
             )}
