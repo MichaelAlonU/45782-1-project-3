@@ -1,5 +1,24 @@
 {
     "app": {
         "name": "vacations prod"
+    },
+    "db": {
+        "host": "vacations-are-us-db-mysql.ns-s2mkrukm.svc",
+        "port": 3306,
+        "username": "root",
+        "password": "DB_PASSWORD",
+        "database": "vacations_are_us_db"
+    },
+    "s3": {
+        "isLocalStack": false,
+        "connection": {
+            "forcePathStyle": true,
+            "region": "eu-central-1",
+            "endpoint": "https://objectstorageapi.eu-central-1.clawcloudrun.com",
+            "credentials": {
+                "accessKeyId": "AWS_ACCESS_KEY",
+                "secretAccessKey": "AWS_SECRET_KEY"
+            }
+        }
     }
 }

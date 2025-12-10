@@ -11,6 +11,7 @@ import followersRouter from './routers/follows'
 import authRouter from './routers/auth'
 import authenticate from './middlewares/authenticate';
 import fileUpload from 'express-fileupload';
+import mysql from "mysql2/promise";
 
 const app = express()
 
@@ -36,21 +37,49 @@ app.use(notFound)
 app.use(logger)
 app.use(responder);
 
+async function ensureDatabaseExists() {
+  const dbConfig = config.get<{
+    host: string;
+    port: number;
+    username: string;
+    password: string;
+    database: string;
+  }>("db");
+
+  const connection = await mysql.createConnection({
+    host: dbConfig.host,
+    port: dbConfig.port,
+    user: dbConfig.username,
+    password: dbConfig.password
+  });
+
+  await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbConfig.database}\`;`);
+  await connection.end();
+}
+
 
 (async () => {
-  await sequelize.sync({ force: process.argv[2] === 'force', alter: process.argv[2] === 'alter' })
-  await Role.bulkCreate(
-    [
-      { roleName: 'USER' },
-      { roleName: 'ADMIN' },
-    ],
-    { ignoreDuplicates: true }
-  );
-  console.log('Roles seeded successfully');
+  try {
+    await ensureDatabaseExists();
 
-  app.listen(port, () => console.log(`${appName} started on port ${port}`))
+    await sequelize.sync({
+      force: process.argv.includes('force'),
+      alter: process.argv.includes('alter')
+    });
 
-})()
+    await Role.bulkCreate(
+      [
+        { roleName: 'USER' },
+        { roleName: 'ADMIN' },
+      ],
+      { ignoreDuplicates: true }
+    );
 
+    console.log('Roles seeded successfully');
 
-console.log(process.argv)
+    app.listen(port, () => console.log(`${appName} started on port ${port}`));
+
+  } catch (err) {
+    console.error("Startup error:", err);
+  }
+})();

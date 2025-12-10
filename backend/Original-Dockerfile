@@ -1,0 +1,25 @@
+# Base image
+FROM node:22-alpine
+WORKDIR /app
+
+# Copy package files
+COPY ./package*.json ./
+RUN npm install
+
+# Copy source code
+COPY ./backend ./backend
+COPY ./io ./io
+
+# Build TS if צריך
+RUN npm run build --prefix backend
+RUN npm run build --prefix io
+
+# אפשר למחוק src כדי לחסוך מקום
+RUN rm -rf ./backend/src ./io/src
+
+# Expose ports
+# [backend 3000 io 3004]
+EXPOSE 3000 3004  
+
+# Start command
+CMD ["sh", "-c", "node backend/dist/index.js & node io/dist/index.js"]
