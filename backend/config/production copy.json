@@ -1,0 +1,12 @@
+{
+    "app": {
+        "name": "vacations prod"
+    },
+    "db": {
+        "host": "vacations-are-us-db-mysql.claw.cloud",
+        "port": 30755,
+        "user": "root",
+        "password": "DB_PASSWORD",
+        "database": "vacations_are_us_db"
+    }
+}
