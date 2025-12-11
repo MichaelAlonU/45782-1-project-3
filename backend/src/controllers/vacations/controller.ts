@@ -1,11 +1,13 @@
-import { NextFunction, Request, Response } from "express";
+    import { NextFunction, Request, Response } from "express";
 import Vacation from "../../models/Vacation";
 import User from "../../models/User";
 
 export async function getAll(req: Request, res: Response, next: NextFunction) {
 
     try {
-        const vacations = await Vacation.findAll({
+        const { getSignedImageUrl } = await import('../../aws/aws');
+        
+        let vacations = await Vacation.findAll({
             include: [{
                 model: User,
                 attributes: ["id"],
@@ -13,6 +15,23 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
             }
             ]
         })
+        
+        // Generate signed URLs for private bucket images
+        vacations = await Promise.all(
+            vacations.map(async (vacation: any) => {
+                const vacationData = vacation.toJSON()
+                if (vacationData.imageUrl) {
+                    try {
+                        vacationData.imageUrl = await getSignedImageUrl(vacationData.imageUrl)
+                    } catch (e) {
+                        console.error(`Failed to generate signed URL for ${vacationData.imageUrl}:`, e)
+                        // Fall back to original URL if signing fails
+                    }
+                }
+                return vacationData
+            })
+        )
+        
         res.json(vacations)
     } catch (e) {
         next(e)

@@ -24,7 +24,7 @@ export default async function fileUploader(req: Request, res: Response, next: Ne
 
     const { mimetype, data, name } = req.files.image as UploadedFile
     try {
-        await createAppBucketIfNotExists();
+        // await createAppBucketIfNotExists();
     } catch (e) {
         console.error("Bucket creation failed:", e);
         return next(e);

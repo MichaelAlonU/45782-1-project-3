@@ -1,4 +1,6 @@
 import express, { json } from 'express'
+import http from 'http'
+import { Server as IOServer } from 'socket.io'
 import logger from './middlewares/error/logger';
 import responder from './middlewares/error/responder';
 import notFound from './middlewares/not-found';
@@ -46,6 +48,12 @@ async function ensureDatabaseExists() {
     database: string;
   }>("db");
 
+  console.log("DB HOST:", dbConfig.host);
+  console.log("DB USER:", dbConfig.username);
+  console.log("DB PASSWORD:", dbConfig.password);
+  console.log("DB NAME:", process.env.DB_NAME);
+  console.log("DB PORT:", dbConfig.port);
+
   const connection = await mysql.createConnection({
     host: dbConfig.host,
     port: dbConfig.port,
@@ -77,7 +85,28 @@ async function ensureDatabaseExists() {
 
     console.log('Roles seeded successfully');
 
-    app.listen(port, () => console.log(`${appName} started on port ${port}`));
+    // Create HTTP server to support both Express and Socket.IO
+    const server = http.createServer(app)
+
+    // Attach Socket.IO to the HTTP server
+    const io = new IOServer(server, {
+      cors: {
+        origin: '*'
+      }
+    })
+
+    // Socket.IO connection handler
+    io.on('connection', (socket) => {
+      console.log('client connected (socket.io)')
+
+      socket.on('vacation-like', (payload: any) => {
+        io.emit('vacation-like', payload)
+      })
+
+      socket.on('disconnect', () => console.log('client disconnected (socket.io)'))
+    })
+
+    server.listen(port, () => console.log(`${appName} started on port ${port}`));
 
   } catch (err) {
     console.error("Startup error:", err);

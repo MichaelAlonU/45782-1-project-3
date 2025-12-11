@@ -72,7 +72,7 @@ export default function VacationCard({ vacation, currentUserId, isEditAllowed, i
 
     return (
         <div className="VacationCard">
-            <img src={`${import.meta.env.VITE_S3_URL}${vacation.imageUrl}`} alt={vacation.destination} />
+            <img src={vacation.imageUrl} alt={vacation.destination} />
             <div className="card-content">
                 <h4>{vacation.destination} </h4>
                 <h6>                    <span className="date">{new Date(vacation.startTime).toLocaleDateString()} - {new Date(vacation.endTime).toLocaleDateString()}</span>

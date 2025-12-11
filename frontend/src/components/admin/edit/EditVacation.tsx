@@ -128,7 +128,7 @@ export default function EditVacation() {
                         {preview ? (
                             <img src={preview} style={{ width: 200, marginTop: 10 }} />
                         ) : (
-                            vacation?.imageUrl && <img src={`${import.meta.env.VITE_S3_URL}${vacation?.imageUrl}`} style={{ width: 200, marginTop: 10 }} />
+                            vacation?.imageUrl && <img src={vacation?.imageUrl} style={{ width: 200, marginTop: 10 }} />
                         )}
                         <div className='formError'>{errors.image?.message}</div>
                         {/* <button type="button" onClick={() => { setValue("image", null); setPreview(null);  }}> Remove Image </button> */}

@@ -4,7 +4,8 @@
         "jwtSecret": "JWT_SECRET"
     },
     "db": {
-        "password": "DB_PASSWORD"
+        "password": "DB_PASSWORD",
+        "username": "DB_USERNAME"
     },
     "s3": {
         "connection": {
