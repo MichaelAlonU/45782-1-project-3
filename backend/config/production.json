@@ -7,8 +7,7 @@
         "port": 3306,
         "username": "DB_USERNAME",
         "password": "DB_PASSWORD",
-        "database": "vacations_are_us_db",
-        "tls": true
+        "database": "vacations_are_us_db"
     },
     "server": {
         "port": 3000
