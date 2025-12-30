@@ -14,6 +14,8 @@ services:
       - "3309:3306"
     #image: shaharsol/weezer-db:1.0.0
     build: ./database
+    volumes:
+      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
       interval: 1m30s
@@ -60,3 +62,4 @@ services:
 
 volumes:
   s3localdata:
+  mysql_data:
