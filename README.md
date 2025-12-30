@@ -1,17 +1,21 @@
-# Vacations Are Us
+## Overview
 
-A full-stack web application for managing and booking vacations. This application allows users to browse vacation packages, bookmark their favorites, and administrators to manage vacation offerings.
+Vacations Are Us is a full-stack web application for managing and booking vacation packages.
+The project demonstrates end-to-end development including authentication, role-based access control,
+REST APIs, real-time communication, database design, and containerized deployment.
 
-## Features
 
-- **User Authentication**: Secure login and signup with JWT-based authentication
-- **Vacation Management**: Browse, search, and filter vacation packages
-- **Bookmarking**: Save favorite vacations for later
-- **Admin Dashboard**: Manage vacation packages (create, edit, delete)
-- **Image Upload**: Upload vacation images with AWS S3 integration
-- **Real-time Updates**: Socket.IO integration for live notifications
-- **Responsive Design**: Fully responsive UI built with React
-- **Role-based Access Control**: Separate permissions for regular users and administrators
+### Key Features
+- JWT-based authentication and role-based authorization (User / Admin)
+- Vacation browsing, filtering, and bookmarking
+- Admin dashboard for vacation management (CRUD)
+- Image uploads with AWS S3 (LocalStack for local development)
+- Real-time updates using Socket.IO
+- Responsive React-based UI
+
+## Tech Stack Overview
+React + TypeScript frontend, Node.js + Express backend, MySQL database,
+real-time communication with Socket.IO, and full Dockerized environment.
 
 ## Tech Stack
 
@@ -25,7 +29,7 @@ A full-stack web application for managing and booking vacations. This applicatio
 - **API Documentation**: Postman collection included
 
 ### Frontend
-- **Framework**: React 19
+- **Framework**: React
 - **State Management**: Redux Toolkit
 - **UI Components**: Custom CSS with Material Design themes
 - **Form Handling**: React Hook Form with Joi validation
@@ -70,6 +74,7 @@ A full-stack web application for managing and booking vacations. This applicatio
 │   └── vacations_are_us_db.sql  # Database schema
 └── docker-compose.yaml     # Multi-container orchestration
 ```
+
 
 ## Getting Started
 
@@ -167,8 +172,6 @@ Services will be available at:
 - `GET /followers` - Get user's bookmarked vacations
 - `POST /followers/:vacationId` - Bookmark a vacation
 - `DELETE /followers/:vacationId` - Remove bookmark
-
-See [Postman Collection](./backend/Tmeetings.postman_collection.json) for complete API documentation.
 
 ## Configuration
 
